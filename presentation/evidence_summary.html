@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>美妆客服共情副驾 | 验收证据</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #f5f7f7; color: #222d30; font-family: "Microsoft YaHei", sans-serif; letter-spacing: 0; }
+    header { background: #fff; border-bottom: 1px solid #d5dfe0; padding: 26px 28px 20px; }
+    main, .inner { max-width: 1060px; margin: auto; }
+    main { padding: 22px 28px 40px; }
+    h1 { margin: 0 0 8px; font-size: 26px; line-height: 1.4; }
+    h2 { font-size: 19px; margin: 0 0 12px; }
+    p { margin: 8px 0; line-height: 1.7; }
+    .meta { color: #59666a; font-size: 14px; }
+    section { padding: 18px 0; border-bottom: 1px solid #d5dfe0; }
+    table { width: 100%; border-collapse: collapse; background: #fff; table-layout: fixed; font-size: 15px; }
+    th, td { padding: 12px 14px; border-bottom: 1px solid #dce3e4; text-align: left; overflow-wrap: anywhere; }
+    th { background: #e8efee; font-weight: 600; }
+    .good { color: #126853; font-weight: 600; }
+    .caution { border-left: 3px solid #aa5a34; padding-left: 14px; font-size: 14px; color: #724e3b; }
+    a { color: #126853; overflow-wrap: anywhere; }
+    img { display: block; width: 100%; height: auto; border: 1px solid #d5dfe0; }
+    @media (max-width: 600px) {
+      header { padding: 22px 18px 16px; }
+      main { padding: 14px 18px 28px; }
+      h1 { font-size: 23px; }
+      th, td { padding: 10px 8px; font-size: 13px; }
+    }
+  </style>
+</head>
+<body>
+  <header><div class="inner">
+    <h1>美妆客服共情副驾</h1>
+    <p>回复复测与运行成本</p>
+    <p class="meta">材料复核：2026-10-11 · 测量：2026-10-09/10 · 赛题MOCK · 本地Qwen3:8b</p>
+  </div></header>
+  <main>
+    <section>
+      <h2>实际运行验收</h2>
+      <table>
+        <thead><tr><th>检查</th><th>结果</th><th>范围</th></tr></thead>
+        <tbody>
+          <tr><td>软件回归</td><td class="good">228项通过</td><td>程序行为，不是模型准确率</td></tr>
+          <tr><td>交互链路</td><td class="good">通过</td><td>生成、审核、任务认领及状态跟踪</td></tr>
+          <tr><td>页面</td><td class="good">桌面 / 手机</td><td>无脚本错误、无横向溢出</td></tr>
+          <tr><td>录制路线彩排</td><td class="good">2个场景</td><td>退货退款受阻 / 举报风险；实际视频待录制</td></tr>
+        </tbody>
+      </table>
+    </section>
+    <section>
+      <h2>当前补丁：12条同案例复测</h2>
+      <table>
+        <thead><tr><th>当前规则检出问题的案例数</th><th>10月9日V7</th><th>10月10日reviewed-4</th></tr></thead>
+        <tbody>
+          <tr><td>声明问题</td><td>0 / 12</td><td class="good">0 / 12</td></tr>
+          <tr><td>服务行为问题</td><td>2 / 12</td><td class="good">0 / 12</td></tr>
+          <tr><td>模型不可用降级</td><td>0 / 12</td><td>0 / 12</td></tr>
+        </tbody>
+      </table>
+      <p class="caution">两组保存输出均用当前规则复查；补了批次和损坏原因检查。当前12例保留10条21处调整。规则无检出仍需人工语义审核，不作为独立准确率。</p>
+      <table>
+        <thead><tr><th>本机顺序运行 / 12条合计</th><th>10月9日V7</th><th>10月10日reviewed-4</th></tr></thead>
+        <tbody>
+          <tr><td>总Token</td><td>7682</td><td>7684，增加0.03%</td></tr>
+          <tr><td>系统中位耗时</td><td>2.55秒</td><td>2.69秒</td></tr>
+          <tr><td>样本最大耗时</td><td>2.72秒</td><td>2.97秒</td></tr>
+        </tbody>
+      </table>
+      <p class="meta">当前补丁改善回复检查与缓存一致性，未测得新的成本下降或提速；以下两组为10月9日的优化测量。</p>
+    </section>
+    <section>
+      <h2>10月9日：12条系统请求</h2>
+      <table>
+        <thead><tr><th>12条合计 / 本机顺序运行</th><th>V6基线</th><th>V7测量版</th></tr></thead>
+        <tbody>
+          <tr><td>输入Token</td><td>6913</td><td class="good">6149，减少11.05%</td></tr>
+          <tr><td>总Token</td><td>8980</td><td class="good">7682，减少14.45%</td></tr>
+          <tr><td>系统中位耗时</td><td>3.21秒</td><td>2.55秒</td></tr>
+          <tr><td>样本最大耗时</td><td>3.58秒</td><td>2.72秒</td></tr>
+        </tbody>
+      </table>
+      <p class="caution">包含1条明确发货证据的零Token路径，限无风险、无历史争议的单订单查询。全组降幅包含这一路由的贡献，耗时是系统耗时。</p>
+    </section>
+    <section>
+      <h2>10月9日：11个共同模型案例</h2>
+      <table>
+        <thead><tr><th>各22次模型生成</th><th>V6协议</th><th>V7协议</th></tr></thead>
+        <tbody>
+          <tr><td>有效结构 / 请求数</td><td>22 / 22</td><td>22 / 22</td></tr>
+          <tr><td>总Token</td><td>16368</td><td class="good">15364，减少6.13%</td></tr>
+          <tr><td>模型中位耗时</td><td>3.030秒</td><td class="good">2.436秒，减少19.60%</td></tr>
+          <tr><td>本组P95</td><td>3.375秒</td><td class="good">2.622秒，减少22.32%</td></tr>
+        </tbody>
+      </table>
+      <p class="caution">同机、同模型、先后顺序交替；规则路径不混入。固定请求小样本，不是生产并发SLA，不报告真实用户总体或人工提效。</p>
+    </section>
+    <section>
+      <h2>识别检查与原人工标注回归</h2>
+      <table>
+        <thead><tr><th>32条分开记录的验证表达</th><th>改前</th><th>改后</th></tr></thead>
+        <tbody>
+          <tr><td>意图</td><td>21 / 32</td><td>26 / 32</td></tr>
+          <tr><td>基本情绪</td><td>26 / 32</td><td>32 / 32</td></tr>
+          <tr><td>场景情绪</td><td>25 / 32</td><td>31 / 32</td></tr>
+        </tbody>
+      </table>
+      <p class="caution">32条表达的预期由工程定义。原30条人工标注事后回归：意图20→21/30，Macro-F1约0.5548→0.4629；混合情绪5→10/30、风险29/30。高风险正例缺失，情绪标签口径仍需统一。</p>
+    </section>
+    <section>
+      <h2>已验证的客服副驾画面</h2>
+      <img src="../evaluation/results/submission_ui_20261010/02_refund_draft.png" alt="当前reviewed-4版退货退款场景的实际工作台">
+      <p class="meta">界面截图来自隔离数据库软件验收，不是线上客户服务或人工实验成绩。</p>
+    </section>
+    <section>
+      <h2>证据文件</h2>
+      <p><a href="../docs/EVALUATION.md">评估与历史结果</a> · <a href="../docs/ARCHITECTURE.md">技术方案</a> · <a href="../docs/KNOWN_LIMITATIONS.md">已知边界</a></p>
+      <p class="meta">以上表格是原本地输入的历史测量。上传副本已清理昵称和无关字段，未重测这些模型指标；聚合摘要保存在evaluation/reference/local_measurement_summary.json，原私有数据库和完整模型日志未公开。</p>
+      <p class="meta">初赛仍需PPT成品与实际视频，决赛另有现场Demo及源码/指南ZIP。本页不是比赛提交回执。</p>
+    </section>
+  </main>
+</body>
+</html>

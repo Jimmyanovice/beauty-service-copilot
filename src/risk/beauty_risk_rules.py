@@ -38,6 +38,14 @@ def detect_risks(text: str, history: dict | None = None) -> list[dict]:
                 is_active_keyword(clause, "过敏") and not any(
                     question in clause for question in ("会不会", "可能", "担心", "怕")):
             allergy_reaction = True
+    # Symptoms can span clauses; a past-use report differs from a pre-sale question.
+    if re.search(r"用了|使用后|用后|涂后|用完|涂完", lowered):
+        for clause in re.split(r"[，,。.!！?？;；]", lowered):
+            symptom = re.search(r"又红又痒|红(?:又|且|还|和)痒", clause)
+            if symptom and is_active_keyword(clause, symptom[0]) and not re.search(
+                r"会不会|会不会出现|担心会|怕会|如果|假如|是否会", clause
+            ):
+                allergy_reaction = True
     rules = [
         ("allergy", "过敏反应", "critical", ("__active_allergy_reaction__",),
          "立即停用并转人工，严重症状请就医"),

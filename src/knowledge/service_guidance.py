@@ -5,6 +5,9 @@ from __future__ import annotations
 import re
 
 from src.risk.beauty_risk_rules import detect_risks, is_active_keyword
+from src.utils.service_requests import current_request_text
+from src.utils.service_issue_cues import reported_item_issues
+from src.knowledge.provided_information import supplied_information
 
 
 FOCUS = {
@@ -36,6 +39,10 @@ FOCUS = {
         "对照买家所述活动、订单赠品和资格，装箱/分包由客服核查",
         ["购买时活动/资格", "订单赠品", "装箱/分包记录"],
     ),
+    "missing_items": (
+        "买家所述少件/空包与物流送达分开，客服先核实收情况和出库装箱",
+        ["已知购买/实收数量", "订单与装箱出库", "分包及处理反馈"],
+    ),
     "authenticity_concern": (
         "气味或颜色差异不证实真假或批次原因",
         ["规格/批次", "可核验渠道依据", "反馈核查结果"],
@@ -65,6 +72,7 @@ NEXT_ACTION = {
     "address_change": "客服核配送节点及拦截/改址可行性，经安全渠道核对新地址",
     "pre_sale_payment": "客服核对应预售活动尾款窗口及订单提示，未确认继续跟进",
     "product_usability_or_damage": "核商品问题及现有材料，对照订单/出库记录后协商售后",
+    "missing_items": "客服对照购买和实收数量，查出库装箱及分包记录，反馈处理方案",
     "promotion_or_gift": "客服对照活动资格与订单赠品，核装箱/分包记录后反馈",
     "authenticity_concern": "客服核商品规格/批次与可核验渠道依据，不预判真假",
     "sku_mismatch": "客服对照订单规格、实收底标和出库记录，核实后协商处理",
@@ -80,6 +88,7 @@ REPLIES = {
     "address_change": "地址填错了，确实需要尽快确认。能否改址还要看包裹当前的配送节点，新地址请通过订单指定的安全渠道核对，确认结果后再反馈。",
     "pre_sale_payment": "您问的这笔预售尾款时间，当前记录里还没有明确窗口。需要对照活动规则和订单提示，确认开始、结束时间后再告诉您。",
     "product_usability_or_damage": "收到的商品不能正常使用，确实影响体验。需要先对照您反馈的问题、已有材料和订单记录；照片还缺的话再请您补充，核实后协商售后。",
+    "missing_items": "您反馈收到的件数不对，这项需要查清楚。已有订单信息先沿用，由客服核对购买与实收数量、出库装箱和分包记录，确认后再反馈处理方案。",
     "promotion_or_gift": "赠品没有收到，您关心的这项需要查清楚。需要对照购买时的活动资格、订单赠品以及装箱和分包记录，确认后再与您沟通处理。",
     "authenticity_concern": "商品和您熟悉的气味或颜色不一样，担心真伪可以理解。原因目前还不能确定，需要核对规格、批次和可核验的渠道资料，再向您反馈。",
     "sku_mismatch": "收到的规格和购买的不一致，确实影响使用。需要对照订单、您已经反馈的实收情况和出库记录；底标照片还缺的话再请您补充，核实后协商处理。",
@@ -95,6 +104,7 @@ ACTION_REQUIREMENTS = {
     "address_change": (("节点", "配送", "物流"), ("改址", "拦截", "修改地址")),
     "pre_sale_payment": (("尾款", "支付窗口"), ("活动", "规则", "订单提示")),
     "product_usability_or_damage": (("商品", "泵头", "破损", "损坏"), ("材料", "售后", "协商")),
+    "missing_items": (("数量", "实收", "件数"), ("装箱", "出库"), ("分包", "处理", "反馈")),
     "promotion_or_gift": (("活动", "资格"), ("赠品",), ("装箱", "出库", "分包")),
     "authenticity_concern": (("批次", "规格"), ("渠道", "依据", "来源")),
     "sku_mismatch": (("订单", "规格"), ("底标", "包装", "出库")),
@@ -108,6 +118,11 @@ def service_focus(message: str, intent: str) -> dict:
         is_active_keyword(message, term)
         for term in ("脸肿", "肿了", "接触性皮炎")
     )
+    message = current_request_text(message)
+    item_issues = reported_item_issues(message)
+    damage = any(issue["category"] == "product_usability_or_damage" for issue in item_issues)
+    missing = any(issue["category"] == "missing_items" for issue in item_issues)
+    gift_context = any(cue in message for cue in ("赠品", "小样", "赠送", "活动", "买一送一"))
     if adverse:
         category = "adverse_reaction_report"
     elif any(word in message for word in ("退款", "退钱", "退的款", "退的钱")) and (
@@ -122,9 +137,11 @@ def service_focus(message: str, intent: str) -> dict:
         category = "pre_sale_payment"
     elif any(term in message for term in ("退款", "退钱", "到账", "退不出", "少款")) or re.search(r"退的(?:钱|款)", message):
         category = "refund_status_or_amount"
-    elif any(is_active_keyword(message, term) for term in ("泵头", "按不出", "挤不出", "漏液", "瓶子碎", "玻璃渣", "破损")):
+    elif damage:
         category = "product_usability_or_damage"
-    elif any(term in message for term in ("赠品", "小样", "漏发")):
+    elif missing and not gift_context:
+        category = "missing_items"
+    elif gift_context or any(is_active_keyword(message, term) for term in ("漏发",)):
         category = "promotion_or_gift"
     elif any(term in message for term in ("真假", "假货", "假的", "正品", "专柜", "批次")):
         category = "authenticity_concern"
@@ -216,6 +233,37 @@ def review_guidance(draft: dict, context: dict, message: str, focus: dict) -> di
     ):
         issues.append({"field": "suggested_reply", "code": "current_condition_not_addressed"})
         changes["suggested_reply"] = REPLIES[category]
+
+    provided = supplied_information(context, message, context.get("session_id", ""))
+    materials = {
+        item["value"] for item in provided
+        if item["kind"] == "reported_material"
+        and item["status"] == "buyer_reported_upload_unverified"
+    }
+    candidate = changes.get("suggested_reply", reply)
+    for material in sorted(materials):
+        pattern = re.compile(
+            rf"(?:请您|请|麻烦您|烦请|能否|需要您)[^。；！？\n]{{0,16}}"
+            rf"(?:提供|发送|上传|补充)[^。；！？\n]{{0,12}}{re.escape(material)}"
+        )
+        replaced = False
+        for match in list(pattern.finditer(candidate))[::-1]:
+            start = max((candidate.rfind(mark, 0, match.start()) for mark in "。；！？\n"), default=-1) + 1
+            previous = candidate[start:match.start()]
+            if re.search(r"若|如果|如未|还缺|尚缺|不清|找不到|无法找到", previous):
+                continue
+            end = min((position for mark in "。；！？\n"
+                       if (position := candidate.find(mark, match.end())) >= 0), default=len(candidate))
+            if end < len(candidate):
+                end += 1
+            candidate = (
+                candidate[:start] + f"您提到已提供{material}，先核材料是否收到及可用，"
+                "确有缺失或不清晰再补充。" + candidate[end:]
+            )
+            replaced = True
+        if replaced:
+            issues.append({"field": "suggested_reply", "code": "reported_material_requested_again"})
+            changes["suggested_reply"] = candidate
 
     order = cited_order(context, draft["evidence_ids"])
     fields = order.get("fields", {}) if order else {}

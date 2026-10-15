@@ -22,6 +22,8 @@ Windows运行README中的Python 3.11安装命令，复制 `.env.example`为本�
 .\.venv\Scripts\python.exe scripts\check_local_model.py
 ```
 
+检查输出的 `gpu_allocation_observed` 和 `gpu_bytes`。新机器默认使用11434；需要独立GPU服务时先安装完整的官方Ollama，再设置 `OLLAMA_GPU_RUNTIME` 指向其目录，用 `scripts/start_local_gpu.ps1` 启动11435并把本机 `.env` 的 `QWEN_API_BASE` 改为 `http://127.0.0.1:11435/v1`。此配置下启动器会检查GPU服务；仓库不包含便携运行时或模型权重。
+
 ## 录制场景
 
 工作台选 `S00381`，分析时点为 `13694977354478.PNM`。先看附件快照，再切历史回放，生成退款受阻建议。另一个场景 `S00076`选 `92900836378476.PNM`，展示举报风险和人工认领。
@@ -37,7 +39,7 @@ Windows运行README中的Python 3.11安装命令，复制 `.env.example`为本�
 ## 可选页面验收
 
 ```powershell
-.\.venv\Scripts\python.exe -m pip install -r requirements_dev.txt
+uv pip install --python .venv\Scripts\python.exe -r requirements_dev.txt
 .\.venv\Scripts\python.exe scripts\run_demo.py --port 5011 --isolated
 ```
 

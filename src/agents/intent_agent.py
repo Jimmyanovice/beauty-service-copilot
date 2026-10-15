@@ -6,6 +6,8 @@ from typing import Dict, Tuple
 from enum import Enum
 import re
 from src.risk.beauty_risk_rules import detect_risks, is_active_keyword
+from src.utils.service_requests import current_request_text, MISSING_OUTCOME_CUES
+from src.utils.service_issue_cues import reported_item_issues
 
 
 class BeautyIntent(Enum):
@@ -66,7 +68,7 @@ class IntentAgent:
             ],
             BeautyIntent.USAGE_METHOD: [
                 "怎么用", "使用方法", "用法", "步骤", "顺序", 
-                "先用", "后用", "早上", "晚上"
+                "先用", "后用", "早上", "晚上", "怎么使用"
             ],
             BeautyIntent.AUTHENTICITY_CHECK: [
                 "真假", "正品", "假货", "鉴别", "辨别", "是不是真的",
@@ -118,12 +120,15 @@ class IntentAgent:
     @staticmethod
     def _active(query: str, cue: str) -> bool:
         """Intent negation means rejecting a request, not a denied refund outcome."""
+        query = current_request_text(query)
         for match in re.finditer(re.escape(cue), query):
             prefix = re.split(r"[，,。！？?!；;]|但是|不过|但|却", query[:match.start()])[-1][-16:]
             rejected = re.search(
                 r"(?:不(?:是|想|要|需要|打算|认为|怀疑)|没(?:有)?|无需|不用|并非)"
                 r"(?:要|再|来|咨询|问|申请|办理|发生|认为|怀疑|提|是){0,3}$", prefix)
-            if not rejected and is_active_keyword(query[max(0, match.start() - 16):match.end()], cue):
+            missing_outcome = cue in MISSING_OUTCOME_CUES and re.search(r"(?:没有|没|未)$", prefix)
+            if missing_outcome or (not rejected and is_active_keyword(
+                query[max(0, match.start() - 16):match.end()], cue)):
                 return True
         return False
 
@@ -143,6 +148,12 @@ class IntentAgent:
             return BeautyIntent.REFUND_REQUEST
         if price:
             return BeautyIntent.GENERAL_CONSULTATION
+        item_issues = reported_item_issues(query)
+        gift_context = active("赠品", "赠送", "附赠", "试用装", "活动", "买一送一")
+        if item_issues and (not gift_context or any(
+            issue["category"] == "product_usability_or_damage" for issue in item_issues
+        )):
+            return BeautyIntent.QUALITY_ISSUE
         if active("优惠券", "折扣券", "折扣", "领取券"):
             return BeautyIntent.COUPON_QUERY
         if active("赠品", "赠送", "附赠", "试用装", "尾款", "支付窗口", "活动规则", "满减"):
@@ -168,7 +179,7 @@ class IntentAgent:
             return BeautyIntent.PRODUCT_COMPARISON
         if active("成分", "原料", "烟酰胺", "玻尿酸", "水杨酸", "含酒精"):
             return BeautyIntent.INGREDIENT_QUERY
-        if active("怎么用", "用法", "使用方法", "使用顺序", "先后", "步骤", "先用", "后用"):
+        if active("怎么用", "怎么使用", "用法", "使用方法", "使用顺序", "先后", "步骤", "先用", "后用"):
             return BeautyIntent.USAGE_METHOD
         if active("效果", "见效", "改善", "白花钱", "无效", "没效果", "效果不好", "没有效果"):
             return BeautyIntent.EFFECT_INQUIRY
@@ -186,11 +197,12 @@ class IntentAgent:
         Returns:
             (意图, 置信度)
         """
-        query_lower = query.lower()
+        original = query.lower()
+        query_lower = current_request_text(original)
 
         # Safety-sensitive expressions take precedence over generic skin, ingredient,
         # comparison and refund terms that commonly occur in the same sentence.
-        if any(item["code"] == "allergy" for item in detect_risks(query_lower)):
+        if any(item["code"] == "allergy" for item in detect_risks(original)):
             return BeautyIntent.ALLERGY_REACTION, 0.95
         explicit = self._explicit_intent(query_lower)
         if explicit is not None:

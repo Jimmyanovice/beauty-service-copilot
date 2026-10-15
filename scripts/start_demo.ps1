@@ -11,10 +11,18 @@ if (-not (Test-Path -LiteralPath $python)) {
     throw "Project Python is missing: $python. Install the runtime dependencies first."
 }
 
+$configuration = Join-Path $root '.env'
+if (Test-Path -LiteralPath $configuration) {
+    $settings = Get-Content -LiteralPath $configuration -Raw
+    if ($settings -match '(?m)^\s*QWEN_API_BASE\s*=\s*http://127\.0\.0\.1:11435/v1\s*$') {
+        & (Join-Path $PSScriptRoot 'start_local_gpu.ps1') -Port 11435
+    }
+}
+
 function Test-DemoHealth([int]$Candidate) {
     try {
         $health = Invoke-RestMethod -Uri "http://127.0.0.1:$Candidate/health" -TimeoutSec 2
-        return $health.status -eq 'ok' -and $health.revision -eq 'workbench-v5' -and $health.evaluation_revision -eq 'manual-evaluation-v2' -and $health.assistance_revision -eq 'compact-v7-reviewed-4'
+        return $health.status -eq 'ok' -and $health.revision -eq 'workbench-v5' -and $health.evaluation_revision -eq 'manual-evaluation-v2' -and $health.assistance_revision -eq 'compact-v9-item-issues-2'
     } catch {
         return $false
     }

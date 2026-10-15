@@ -6,6 +6,7 @@ from typing import Dict, Optional
 from enum import Enum
 import re
 from src.risk.beauty_risk_rules import is_active_keyword
+from src.risk.beauty_risk_rules import detect_risks
 
 
 class BeautyEmotion(Enum):
@@ -97,6 +98,9 @@ class EmotionAgent:
                 matched_keywords = [kw for kw in config["keywords"] if self._active(text_lower, kw)]
                 if fear:
                     matched_keywords.extend(cue for cue in ("敏感", "刺激") if self._active(text_lower, cue))
+                reported_reaction = any(alert["code"] == "allergy" for alert in detect_risks(text_lower))
+                if not fear and not reported_reaction:
+                    matched_keywords = []
             elif emotion == BeautyEmotion.EFFECT_DISAPPOINTMENT:
                 if not any(self._active(text_lower, cue) for cue in (
                     "效果", "没效果", "没有效果", "无效", "改善", "白买了", "白花钱", "浪费钱")):
@@ -125,15 +129,37 @@ class EmotionAgent:
     def _active(text: str, cue: str) -> bool:
         for match in re.finditer(re.escape(cue), text):
             prefix = re.split(r"[，,。！？?!；;]|但是|不过|但|却", text[:match.start()])[-1][-12:]
-            negated = re.search(r"(?:没有|没|不(?:是|想|要|需要|认为|觉得|会)?|并非|无需)(?:感到|觉得|认为|有){0,2}$", prefix)
-            if not negated and is_active_keyword(text[max(0, match.start() - 12):match.end()], cue):
+            negated = re.search(r"(?:没有|没|不(?:是|想|要|需要|认为|觉得|会)?|并非|无需)(?:感到|觉得|认为|有|在){0,2}$", prefix)
+            other_person = re.search(
+                r"(?:他|她|朋友|客服|医生|别人)(?:自己)?(?:很|非常|有点|感到|觉得|表示){0,2}$"
+                r"|(?:他|她|朋友|别人|人家)(?:在)?(?:说|表示|认为|觉得|提到)[^，。；！？\n]{0,5}$",
+                prefix,
+            )
+            clause = re.split(r"[，,。！？?!；;]", text[:match.start()])[-1] + text[match.start():]
+            clause = re.split(r"[，,。；;]", clause, maxsplit=1)[0]
+            allegation_question = cue in {"骗人", "敷衍", "被坑"} and bool(
+                re.search(r"是不是(?:在)?$|是否(?:在)?$", prefix)
+                or (re.search(r"不是在$", prefix) and re.search(r"难道|吗|[？?]", clause))
+            )
+            if cue == "投诉":
+                start = max((text.rfind(mark, 0, match.start()) for mark in "，,。！？?!；;"), default=-1) + 1
+                ends = [position for mark in "，,。！？?!；;"
+                        if (position := text.find(mark, match.end())) >= 0]
+                clause = text[start:min(ends) if ends else len(text)]
+                information_only = re.search(r"入口|流程|渠道|如何投诉|怎么投诉|咨询投诉", clause)
+                direct_complaint = re.search(r"我要|我就|准备|去投诉|要投诉|投诉你们|投诉客服", clause)
+                if information_only and not direct_complaint:
+                    continue
+            if not other_person and (allegation_question or (
+                not negated and is_active_keyword(text[max(0, match.start() - 12):match.end()], cue)
+            )):
                 return True
         return False
 
     @classmethod
     def _positive_cues(cls, text: str) -> list[str]:
         cues = []
-        for cue in ("开心", "高兴", "满意", "喜欢", "好用", "好多了", "棒", "赞", "谢谢", "感谢", "多谢", "解决了", "处理好了"):
+        for cue in ("开心", "高兴", "满意", "喜欢", "好用", "好多了", "棒", "赞", "解决了", "处理好了"):
             if not cls._active(text, cue):
                 continue
             clauses = [clause for clause in re.split(r"[，,。！？?!；;]", text) if cue in clause]
@@ -204,6 +230,15 @@ class EmotionAgent:
                     "confidence": 0.90,
                     "matched_keywords": matched,
                 }
+        repeated_work = re.search(r"别再问|别让我重复|不要让我重复|别让我再说|说了(?:三|四|五|[3-9])遍", text_lower)
+        sarcasm = re.search(r"你们可真(?:行|厉害|会)", text_lower) and re.search(
+            r"又让我等|又拖|还让我等|又等了|再次让我等", text_lower)
+        if repeated_work or sarcasm:
+            return {
+                "emotion": "angry", "valence": -0.6, "arousal": 0.6,
+                "confidence": 0.80,
+                "matched_keywords": [repeated_work[0] if repeated_work else "反讽与等待描述"],
+            }
         if re.search(r"(?:是不是|会不会|会是)[^。；]{0,10}(?:假的|假货)", text_lower):
             return {"emotion": "fearful", "valence": -0.6, "arousal": 0.6,
                     "confidence": 0.80, "matched_keywords": ["真伪疑问"]}

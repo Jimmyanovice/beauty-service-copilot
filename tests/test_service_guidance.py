@@ -39,7 +39,7 @@ def draft(**changes):
     ("退货仓库收到后售后关闭了，钱退不出来", "return_refund"),
     ("我的地址写错还没到货，申请改址", "address_change"),
     ("收到货没有赠品，帮查是否分包", "promotion_or_gift"),
-    ("买两件少了一件，请查仓库出库", "general_service"),
+    ("买两件少了一件，请查仓库出库", "missing_items"),
     ("退的钱少了12元", "refund_status_or_amount"),
     ("退货退款到了，但是差额少了18.2块", "refund_status_or_amount"),
     ("泵头有问题，我申请退款", "refund_status_or_amount"),

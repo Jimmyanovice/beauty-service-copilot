@@ -44,7 +44,10 @@ def load_documents(directory: Path = DATA_DIR) -> list[dict]:
 class RAGEngine:
     """Fuse local BM25 and vector retrieval while retaining provenance."""
 
-    def __init__(self, vector_store: VectorStore | None = None, documents: list[dict] | None = None) -> None:
+    def __init__(
+        self, vector_store: VectorStore | None = None, documents: list[dict] | None = None,
+        reranker: object | None = None,
+    ) -> None:
         from rank_bm25 import BM25Okapi
 
         import os
@@ -52,6 +55,7 @@ class RAGEngine:
         self.vector_store = vector_store or VectorStore(
             backend=os.getenv("VECTOR_BACKEND", "memory"))
         self.documents = documents if documents is not None else load_documents()
+        self.reranker = reranker
         self.tokens = [tokenize(f"{d.get('title', '')} {d.get('content', '')} {' '.join(d.get('tags', []))}")
                        for d in self.documents]
         self.bm25 = BM25Okapi(self.tokens) if self.tokens else None
@@ -85,4 +89,14 @@ class RAGEngine:
             return []
         vector = self.vector_store.search(query, top_k * 2)
         lexical = self.bm25_search(query, top_k * 2)
-        return self.reciprocal_rank_fusion(vector, lexical)[:top_k]
+        fused = self.reciprocal_rank_fusion(vector, lexical)
+        if self.reranker is not None:
+            ranked = self.reranker.rerank(query, fused)
+            if len(ranked) != len(fused) or {doc["id"] for doc in ranked} != {doc["id"] for doc in fused}:
+                raise ValueError("Reranker must retain exactly the retrieved document IDs.")
+            originals = {doc["id"]: doc for doc in fused}
+            if any(any(doc.get(key) != value for key, value in originals[doc["id"]].items())
+                   for doc in ranked):
+                raise ValueError("Reranker must not change knowledge content or approval.")
+            fused = ranked
+        return fused[:top_k]

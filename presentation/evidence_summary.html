@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>美妆客服共情副驾 | 验收证据</title>
+  <title>美妆客服共情副驾 | 测量记录</title>
   <style>
     * { box-sizing: border-box; }
     body { margin: 0; background: #f5f7f7; color: #222d30; font-family: "Microsoft YaHei", sans-serif; letter-spacing: 0; }
@@ -13,7 +13,7 @@
     h1 { margin: 0 0 8px; font-size: 26px; line-height: 1.4; }
     h2 { font-size: 19px; margin: 0 0 12px; }
     p { margin: 8px 0; line-height: 1.7; }
-    .meta { color: #59666a; font-size: 14px; }
+    .meta { color: #59666a; font-size: 14px; overflow-wrap: anywhere; }
     section { padding: 18px 0; border-bottom: 1px solid #d5dfe0; }
     table { width: 100%; border-collapse: collapse; background: #fff; table-layout: fixed; font-size: 15px; }
     th, td { padding: 12px 14px; border-bottom: 1px solid #dce3e4; text-align: left; overflow-wrap: anywhere; }
@@ -33,91 +33,71 @@
 <body>
   <header><div class="inner">
     <h1>美妆客服共情副驾</h1>
-    <p>回复复测与运行成本</p>
-    <p class="meta">材料复核：2026-10-11 · 测量：2026-10-09/10 · 赛题MOCK · 本地Qwen3:8b</p>
+    <p>回复、识别与运行用量</p>
+    <p class="meta">材料核对：2026-10-15 · compact-v9-item-issues-2 · 本地Qwen3:8b · 赛题虚构数据</p>
   </div></header>
   <main>
     <section>
-      <h2>实际运行验收</h2>
+      <h2>当前版本检查</h2>
       <table>
         <thead><tr><th>检查</th><th>结果</th><th>范围</th></tr></thead>
         <tbody>
-          <tr><td>软件回归</td><td class="good">228项通过</td><td>程序行为，不是模型准确率</td></tr>
-          <tr><td>交互链路</td><td class="good">通过</td><td>生成、审核、任务认领及状态跟踪</td></tr>
-          <tr><td>页面</td><td class="good">桌面 / 手机</td><td>无脚本错误、无横向溢出</td></tr>
-          <tr><td>录制路线彩排</td><td class="good">2个场景</td><td>退货退款受阻 / 举报风险；实际视频待录制</td></tr>
+          <tr><td>软件测试</td><td class="good">348项通过</td><td>程序行为，不是模型准确率</td></tr>
+          <tr><td>页面与操作</td><td class="good">桌面 / 390px手机</td><td>生成、审核、任务认领、状态历史；无脚本错误或横向溢出</td></tr>
+          <tr><td>场景彩排</td><td class="good">退款 / 举报 / 少件</td><td>隔离数据库操作，不是线上客户试点</td></tr>
+          <tr><td>12例最终回复规则</td><td>声明0例 / 服务0例剩余检出</td><td>原稿10例16处系统修正保留；规则无检出不代替人工认可</td></tr>
+          <tr><td>本人回复复核</td><td>8条原稿可用，4条改后认可</td><td>12条收尾完成，0待确认；已看自动检查意见，非独立盲评</td></tr>
         </tbody>
       </table>
     </section>
     <section>
-      <h2>当前补丁：12条同案例复测</h2>
+      <h2>当前12个固定案例</h2>
       <table>
-        <thead><tr><th>当前规则检出问题的案例数</th><th>10月9日V7</th><th>10月10日reviewed-4</th></tr></thead>
+        <thead><tr><th>顺序运行指标</th><th>当前V9</th><th>方法</th></tr></thead>
         <tbody>
-          <tr><td>声明问题</td><td>0 / 12</td><td class="good">0 / 12</td></tr>
-          <tr><td>服务行为问题</td><td>2 / 12</td><td class="good">0 / 12</td></tr>
-          <tr><td>模型不可用降级</td><td>0 / 12</td><td>0 / 12</td></tr>
+          <tr><td>输入 / 输出Token</td><td>6783 / 1573</td><td>总计8356 Token</td></tr>
+          <tr><td>系统中位 / 样本最大</td><td>2.83秒 / 3.69秒</td><td>原值2834.98 / 3685.6毫秒</td></tr>
+          <tr><td>模型生成 / 证据路径</td><td>11次 / 1次</td><td>各取首遍，无模型不可用降级</td></tr>
         </tbody>
       </table>
-      <p class="caution">两组保存输出均用当前规则复查；补了批次和损坏原因检查。当前12例保留10条21处调整。规则无检出仍需人工语义审核，不作为独立准确率。</p>
+      <p class="caution">V8-5为8357 Token，本轮差1 Token不作显著降本结论。当前没有增加独立分类调用。固定案例、不同运行时段的结果不用于单因素速度归因，不是生产SLA或人工效率数据。</p>
+    </section>
+    <section>
+      <h2>原30条标注：已见样本事后回归</h2>
       <table>
-        <thead><tr><th>本机顺序运行 / 12条合计</th><th>10月9日V7</th><th>10月10日reviewed-4</th></tr></thead>
+        <thead><tr><th>指标</th><th>当前结果</th><th>解释</th></tr></thead>
         <tbody>
-          <tr><td>总Token</td><td>7682</td><td>7684，增加0.03%</td></tr>
-          <tr><td>系统中位耗时</td><td>2.55秒</td><td>2.69秒</td></tr>
-          <tr><td>样本最大耗时</td><td>2.72秒</td><td>2.97秒</td></tr>
+          <tr><td>最终工作流意图</td><td>27/30，Macro-F1约0.6176</td><td>此前V8为21/30；规则意图另为26/30</td></tr>
+          <tr><td>最终基础情绪</td><td>21/30，Macro-F1约0.6511</td><td>沿用同一公开映射，本轮未提高</td></tr>
+          <tr><td>规则混合情绪</td><td>11/30</td><td>包含基础和场景标签，不与基础情绪直接算提升</td></tr>
+          <tr><td>最终风险等级</td><td>27/30</td><td>三条不适反馈的安全下限高于旧中级标签</td></tr>
+          <tr><td>高风险召回</td><td>不可计算</td><td>原人工标签中高/紧急正例为0</td></tr>
         </tbody>
       </table>
-      <p class="meta">当前补丁改善回复检查与缓存一致性，未测得新的成本下降或提速；以下两组为10月9日的优化测量。</p>
+      <p class="caution">每例首遍，29次模型与1次证据路径，原标签未改。样本已参与开发，不能称独立90%准确率；情绪标签匹配也不等于消费者共情体验。本人复核为8条原V9可见草稿可用、4条改后认可，不称首轮12条全部正确；改稿未替换自动生成逻辑。实际视频未录制，人工效率缺完整任务级计时，不报告提升比例。</p>
     </section>
     <section>
-      <h2>10月9日：12条系统请求</h2>
+      <h2>历史对照：不与当前测量混算</h2>
       <table>
-        <thead><tr><th>12条合计 / 本机顺序运行</th><th>V6基线</th><th>V7测量版</th></tr></thead>
+        <thead><tr><th>实验</th><th>结果</th><th>范围</th></tr></thead>
         <tbody>
-          <tr><td>输入Token</td><td>6913</td><td class="good">6149，减少11.05%</td></tr>
-          <tr><td>总Token</td><td>8980</td><td class="good">7682，减少14.45%</td></tr>
-          <tr><td>系统中位耗时</td><td>3.21秒</td><td>2.55秒</td></tr>
-          <tr><td>样本最大耗时</td><td>3.58秒</td><td>2.72秒</td></tr>
+          <tr><td>2026-10-09 模型协议</td><td>总Token16368→15364，减少6.13%</td><td>11个共同案例，两轮交替，两版各22次模型请求</td></tr>
+          <tr><td>2026-10-09 完整系统</td><td>总Token8980→7682，减少14.45%</td><td>12例，包含1条证据路由；与纯模型对照分别报告</td></tr>
+          <tr><td>2026-10-13 CPU / 5060</td><td>模型中位17.18→3.82秒</td><td>固定相同提示，3案例交替两轮，各6次；保留首次慢请求</td></tr>
+          <tr><td>离线回复预审分流</td><td>总Token15326→11788，减少23.08%</td><td>仅离线评审，不计作接待Token节约</td></tr>
         </tbody>
       </table>
-      <p class="caution">包含1条明确发货证据的零Token路径，限无风险、无历史争议的单订单查询。全组降幅包含这一路由的贡献，耗时是系统耗时。</p>
+      <p class="meta">以上未核算硬件、电费、生产并发或真实客服节省时间。原输出、失败与中间实验保留在开发环境。</p>
     </section>
     <section>
-      <h2>10月9日：11个共同模型案例</h2>
-      <table>
-        <thead><tr><th>各22次模型生成</th><th>V6协议</th><th>V7协议</th></tr></thead>
-        <tbody>
-          <tr><td>有效结构 / 请求数</td><td>22 / 22</td><td>22 / 22</td></tr>
-          <tr><td>总Token</td><td>16368</td><td class="good">15364，减少6.13%</td></tr>
-          <tr><td>模型中位耗时</td><td>3.030秒</td><td class="good">2.436秒，减少19.60%</td></tr>
-          <tr><td>本组P95</td><td>3.375秒</td><td class="good">2.622秒，减少22.32%</td></tr>
-        </tbody>
-      </table>
-      <p class="caution">同机、同模型、先后顺序交替；规则路径不混入。固定请求小样本，不是生产并发SLA，不报告真实用户总体或人工提效。</p>
+      <h2>工作台操作画面</h2>
+      <img src="../evaluation/results/mainline_accuracy_ui_20261014/rehearsal/02_refund_draft.png" alt="V9退款受阻场景的工作台与辅助建议">
+      <p class="meta">原界面截图，未改写回复内容。使用虚构数据和隔离数据库，不是线上客户服务或人工实验成绩。</p>
     </section>
     <section>
-      <h2>识别检查与原人工标注回归</h2>
-      <table>
-        <thead><tr><th>32条分开记录的验证表达</th><th>改前</th><th>改后</th></tr></thead>
-        <tbody>
-          <tr><td>意图</td><td>21 / 32</td><td>26 / 32</td></tr>
-          <tr><td>基本情绪</td><td>26 / 32</td><td>32 / 32</td></tr>
-          <tr><td>场景情绪</td><td>25 / 32</td><td>31 / 32</td></tr>
-        </tbody>
-      </table>
-      <p class="caution">32条表达的预期由工程定义。原30条人工标注事后回归：意图20→21/30，Macro-F1约0.5548→0.4629；混合情绪5→10/30、风险29/30。高风险正例缺失，情绪标签口径仍需统一。</p>
-    </section>
-    <section>
-      <h2>已验证的客服副驾画面</h2>
-      <img src="../evaluation/results/submission_ui_20261010/02_refund_draft.png" alt="当前reviewed-4版退货退款场景的实际工作台">
-      <p class="meta">界面截图来自隔离数据库软件验收，不是线上客户服务或人工实验成绩。</p>
-    </section>
-    <section>
-      <h2>证据文件</h2>
-      <p><a href="../docs/EVALUATION.md">评估与历史结果</a> · <a href="../docs/ARCHITECTURE.md">技术方案</a> · <a href="../docs/KNOWN_LIMITATIONS.md">已知边界</a></p>
-      <p class="meta">以上表格是原本地输入的历史测量。上传副本已清理昵称和无关字段，未重测这些模型指标；聚合摘要保存在evaluation/reference/local_measurement_summary.json，原私有数据库和完整模型日志未公开。</p>
-      <p class="meta">初赛仍需PPT成品与实际视频，决赛另有现场Demo及源码/指南ZIP。本页不是比赛提交回执。</p>
+      <h2>核对文件</h2>
+      <p><a href="../docs/FINAL_PROJECT_REPORT.md">项目报告</a> · <a href="../docs/MAINLINE_ACCURACY_20261014.md">当前判断优化</a> · <a href="../evaluation/reference/mainline_accuracy_update_20261015.json">测量摘要</a> · <a href="../docs/REPLY_REVIEW_SUMMARY_20261015.md">本人复核汇总</a> · <a href="../docs/SUBMISSION_AUDIT_20261015.md">提交检查</a></p>
+      <p class="meta">模型数字来自原开发环境。GitHub副本清理过字段与昵称，没有原人工数据库或完整原始模型记录，不能称新机器复现成绩。本页是测量资料，不是正式提交回执。</p>
     </section>
   </main>
 </body>

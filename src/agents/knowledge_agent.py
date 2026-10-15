@@ -17,7 +17,11 @@ class KnowledgeAgent:
         """Return ranked evidence with conservative handoff decision."""
         docs = self.rag_engine.hybrid_search(query)
         decision = self.gate.evaluate(query, docs, intent)
-        context = "\n".join(f"[{i}] {doc.get('title', '')} ({doc.get('source', '')}): "
-                            f"{doc.get('content', '')[:400]}" for i, doc in enumerate(docs[:3], 1))
+        supported_ids = set(decision["supported_document_ids"])
+        approved = [doc for doc in docs if doc.get("id") in supported_ids]
+        context = "\n".join(f"[{doc['id']}] {doc.get('title', '')} ({doc.get('source', '')}): "
+                            f"{doc.get('content', '')[:400]}" for doc in approved[:3])
         return {"retrieved_docs": docs, "context": context, "confidence": decision["confidence"],
-                "can_auto_reply": decision["can_auto_reply"], "reason": decision["reason"]}
+                "can_auto_reply": decision["can_auto_reply"], "reason": decision["reason"],
+                "supported_document_ids": decision["supported_document_ids"],
+                "approved_docs": approved}

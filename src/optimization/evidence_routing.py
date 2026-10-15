@@ -31,7 +31,8 @@ def evidence_draft(context: dict, message: str, signals: dict) -> dict | None:
     if greeting in {"你好", "您好", "在吗", "有人吗", "hi", "hello", "hi在吗", "你好在吗", "您好在吗"} and not context.get("evidence"):
         return {
             "summary": "买家问候，具体服务诉求尚未提供。",
-            "emotion": "中性", "risk_level": "低", "evidence_ids": [],
+            "emotion": "中性", "emotion_basic_display": "neutral", "emotion_source": "evidence_route",
+            "risk_level": "低", "evidence_ids": [],
             "missing_info": ["买家具体咨询或处理事项"],
             "suggested_reply": "您好，在的。请问需要咨询或处理什么问题？",
             "next_action": "了解具体诉求后再核对必要业务信息",
@@ -61,7 +62,8 @@ def evidence_draft(context: dict, message: str, signals: dict) -> dict | None:
         return None
     return {
         "summary": f"买家询问发货及运单；订单{order['id']}有{shipment[:10]}发货记录，最新配送节点待核。",
-        "emotion": "中性", "risk_level": "低", "evidence_ids": [order["id"]],
+        "emotion": "中性", "emotion_basic_display": "neutral", "emotion_source": "evidence_route",
+        "risk_level": "低", "evidence_ids": [order["id"]],
         "missing_info": ["承运方最新配送轨迹"],
         "suggested_reply": (
             f"您好，订单记录显示于{shipment[:10]}发货，"

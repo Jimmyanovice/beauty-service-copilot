@@ -65,7 +65,8 @@ def main() -> None:
     report["implementation_sha256"] = {
         str(path): hashlib.sha256((ROOT / path).read_bytes()).hexdigest()
         for path in (Path("src/agents/intent_agent.py"), Path("src/agents/emotion_agent.py"),
-                     Path("src/risk/beauty_risk_rules.py"))
+                     Path("src/risk/beauty_risk_rules.py"), Path("src/utils/service_requests.py"))
+        if (ROOT / path).exists()
     }
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")

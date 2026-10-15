@@ -39,6 +39,7 @@ class AgentState(TypedDict):
     
     # Knowledge Agent输出
     retrieved_docs: List[Dict]
+    approved_docs: List[Dict]
     can_auto_reply: bool
     knowledge_confidence: float
     
@@ -164,7 +165,8 @@ class CustomerServiceWorkflow:
             }
         return {
             "retrieved_docs": result["retrieved_docs"],
-            "can_auto_reply": result["can_auto_reply"],
+            "approved_docs": result.get("approved_docs", []),
+            "can_auto_reply": bool(result["can_auto_reply"] and result.get("approved_docs")),
             "knowledge_confidence": result["confidence"]
         }
     
@@ -184,7 +186,7 @@ class CustomerServiceWorkflow:
         result = self.response_agent.generate(
             user_input=state["user_input"], intent=state["intent"],
             emotion={"emotion": state["emotion"], "valence": state["valence"]},
-            knowledge_docs=state["retrieved_docs"], user_profile=state["user_profile"],
+            knowledge_docs=state["approved_docs"], user_profile=state["user_profile"],
             session_id=state["session_id"], can_auto_reply=state["can_auto_reply"],
         )
         return {

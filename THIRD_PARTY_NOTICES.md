@@ -24,3 +24,11 @@ LangGraph编排、本地Ollama和Qwen为技术底座；项目自己实现了多�
 LiteLLM缓存键参数隔离、Outlines结构化输出及Ragas分项评测提供设计参考。没有复制这些仓库的实现，也没有宣称实现完整的外部忠实性指标或网关能力。
 
 仓库README和文档中应保持源码、依赖和数据来源分开。项目中出现真实品牌名称只是赛题或模拟知识的一部分，不是商标授权或商业合作声明。
+
+## 可选研究依赖
+
+`requirements_research.txt`使用scikit-learn 1.7.2（BSD-3-Clause）建立CPU字符特征分类和词法重排实验，工作台默认不加载。库源码、环境和权重不随项目打包；安装分发时保留该版本自带许可和依赖声明。
+
+SetFit（Apache-2.0）、Sentence Transformers（Apache-2.0）、FlagEmbedding（MIT）的查阅文件和采纳边界见 [开源补充报告](docs/OPEN_SOURCE_SUPPLEMENTS_20261014.md)。未安装SetFit或BGE模型，未把词法基线冒充语义模型；库许可不自动授予所有权重或训练语料的使用权限。
+
+LangMem（MIT）、Mem0（Apache-2.0）与Chatwoot非enterprise部分（MIT Expat）的实际源码/许可核查见 [服务记忆研究](docs/SERVICE_MEMORY_RESEARCH_20261014.md)。仅参考记忆结构、身份范围及会话属性，没有复制源码或部署整套产品；Chatwoot enterprise及第三方部分不按MIT一概处理。

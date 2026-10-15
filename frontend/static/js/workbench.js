@@ -48,6 +48,11 @@ function resetAssist() {
   $("review-editor").hidden = true;
   $("use-draft").disabled = $("create-task").disabled = true;
   $("missing-info").replaceChildren();
+  $("communication-strategy").textContent = "尚未分析";
+  $("communication-needs").replaceChildren();
+  $("stated-preferences").replaceChildren();
+  $("communication-basis").replaceChildren();
+  $("provided-information").replaceChildren();
   $("trace").replaceChildren();
   $("analysis-record-id").textContent = "";
   $("review-status").textContent = "";
@@ -179,6 +184,27 @@ function renderAssist(result) {
     result.model_status === "rule_evidence" ? "证据规则建议" :
     result.model_status === "fallback" ? "降级待复核" : result.cache_hit ? "缓存草稿" : "模型草稿";
   $("missing-info").replaceChildren(...result.missing_info.map((text) => node("li", text)));
+  const brief = result.communication_brief || {};
+  $("communication-strategy").textContent = brief.strategy || "结合当前问题核查后回复";
+  $("communication-needs").replaceChildren(...(brief.needs || []).map((item) => node(
+    "li", `${item.label}：${item.action}`)));
+  $("stated-preferences").replaceChildren(...(brief.stated_preferences || []).map((item) => node(
+    "p", `${item.label}：${item.value}（自述，非适配结论）`, "muted")));
+  const citedBrief = [...(brief.needs || []), ...(brief.stated_preferences || [])];
+  $("communication-basis").replaceChildren(...citedBrief.map((item) => node(
+    "li", `${item.basis.message_id || "当前输入"}：${item.basis.quote}`)));
+  (brief.human_review_reasons || []).forEach((reason) => $("communication-basis").append(node("li", reason)));
+  const materialStatus = {
+    buyer_reported_upload_unverified: "买家自述，先核是否收到及可用",
+    asset_not_provided: "仅有图片消息记录，附件文件未提供",
+    asset_available: "附件可用，内容仍需核查",
+    buyer_reported_not_product_approval: "自述，非商品适配结论",
+    structured_record: "已有字段，按当前业务时点核查",
+    current_report_conflicts_with_prior_upload: "本次说明与此前自述冲突，先核材料情况",
+  };
+  $("provided-information").replaceChildren(...(brief.provided_information || []).map((item) => node(
+    "li", `${item.label}：${item.value}；${materialStatus[item.status] || "待核"}；依据 ${item.basis.message_id || "当前输入"} ${item.basis.quote}`)));
+  if (!(brief.provided_information || []).length) $("provided-information").append(node("li", "暂无可复用资料"));
   $("trace").replaceChildren(...result.trace.map((step) => node("li", `${step.node} · ${step.duration_ms} ms`)));
   $("analysis-record-id").textContent = `分析记录 ${result.analysis_id}`;
   $("use-draft").disabled = $("create-task").disabled = false;

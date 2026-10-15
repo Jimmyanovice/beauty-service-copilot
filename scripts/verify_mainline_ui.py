@@ -52,6 +52,10 @@ def main() -> None:
                 "document.querySelector('#model-badge').textContent !== '分析中' && document.querySelector('#trace li') !== null",
                 timeout=120000)
             assert page.locator("#trace li").count() == 5
+            assert page.locator("#communication-strategy").inner_text()
+            assert "等待" in page.locator("#communication-needs").inner_text()
+            assert page.locator("#communication-basis li").count() >= 1
+            assert "已有订单记录" in page.locator("#provided-information").text_content()
             assert "退款" in page.locator("#next-action").inner_text()
             assert "退货" in page.locator("#next-action").inner_text()
             assert "正在核实" not in page.locator("#draft").inner_text()
